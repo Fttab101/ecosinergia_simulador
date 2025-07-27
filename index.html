@@ -114,6 +114,17 @@
                             <p class="text-gray-700 mt-2" id="dpp-alert">-</p>
                         </div>
                     </div>
+                    <!-- Sección de Contacto -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 mt-6 fade-in" style="animation-delay: 0.8s;">
+                        <h3 class="font-bold text-lg text-gray-800 text-center">¿Interesado en explorar esta oportunidad?</h3>
+                        <p class="text-center text-gray-500 mt-2">Contáctanos para una consulta personalizada y sin compromiso.</p>
+                        <div class="mt-4 text-center">
+                            <button id="contact-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                                Solicitar Consulta
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="mt-8 text-center">
                         <button id="recalculate-btn" class="bg-gray-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600 transition">
                             Realizar un nuevo cálculo
@@ -150,6 +161,7 @@
         const envImpactEl = document.getElementById('env-impact');
         const connectionsEl = document.getElementById('connections');
         const dppAlertEl = document.getElementById('dpp-alert');
+        const contactBtn = document.getElementById('contact-btn');
 
         // Función para cargar y procesar los datos del CSV
         async function loadData() {
@@ -275,6 +287,66 @@
 
         // Iniciar la carga de datos al cargar la página
         loadData();
+
+        // Variable global para guardar los resultados del cálculo
+        let lastCalculation = {}; 
+
+        // ... (dentro de tu función calculateBtn.addEventListener)
+        // Justo después de la línea que calcula las 'connections', guarda los resultados:
+        lastCalculation = {
+            sector: sectorSelect.options[sectorSelect.selectedIndex].text,
+            subproduct: selectedProduct.name,
+            tons: tons,
+            marketValue: marketValue.toLocaleString('es-ES')
+        };
+        // ... resto de la función ...
+
+
+        contactBtn.addEventListener('click', () => {
+        // Verificamos si 'lastCalculation' y sus propiedades existen antes de usarlas.
+        // Esto añade robustez y previene errores si los datos no están disponibles.
+        if (!lastCalculation || !lastCalculation.subproduct || !lastCalculation.sector || !lastCalculation.tons || !lastCalculation.marketValue) {
+            console.error("No se pudieron obtener los datos necesarios de lastCalculation para generar el correo.");
+            // Opcionalmente, puedes mostrar un mensaje al usuario.
+            alert("Lo sentimos, no hemos podido recopilar la información necesaria para enviar el correo. Por favor, inténtalo de nuevo más tarde.");
+            return; // Detiene la ejecución de la función si los datos son insuficientes.
+        }
+
+        const recipientEmail = 'hectormedina@ecosinergia.org.ar';
+        const subject = `Consulta sobre Oportunidad Circular: ${lastCalculation.subproduct}`;
+
+        // Cuerpo del correo con un formato más limpio y profesional.
+        const body = `Estimado equipo de Ecosinergia,
+
+        Me dirijo a ustedes con gran interés tras haber utilizado su simulador. Me gustaría explorar la siguiente oportunidad circular:
+
+        Detalles de la Oportunidad:
+        - Sector: ${lastCalculation.sector}
+        - Subproducto: ${lastCalculation.subproduct}
+        - Toneladas Anuales Estimadas: ${lastCalculation.tons}
+        - Valor de Mercado Estimado: ${lastCalculation.marketValue} €
+
+        Estoy muy interesado en conversar sobre cómo nuestras entidades pueden colaborar para aprovechar esta oportunidad. Le agradecería que pudiéramos agendar una breve llamada a su conveniencia.
+
+        Agradezco de antemano su tiempo y consideración.
+
+        Atentamente,
+
+        [Tu Nombre]
+        [Tu Empresa]
+        `;
+
+        // Codificamos el asunto y el cuerpo para asegurar que los caracteres especiales no causen problemas en la URL.
+        const encodedSubject = encodeURIComponent(subject);
+        const encodedBody = encodeURIComponent(body);
+
+        const mailtoLink = `mailto:${recipientEmail}?subject=${encodedSubject}&body=${encodedBody}`;
+
+        // Usar window.location.href para abrir el cliente de correo es seguro.
+        // No hay riesgos de seguridad intrínsecos en esta operación.
+        window.location.href = mailtoLink;
+        });
+
 
     </script>
 </body>
